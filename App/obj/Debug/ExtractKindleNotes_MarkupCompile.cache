@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-D:\Personal Projects\ExtractKindleNotes\obj\Debug\
+D:\Personal Projects\ExtractKindleNotes\App\obj\Debug\
 ExtractKindleNotes
 none
 false
 DEBUG;TRACE
-D:\Personal Projects\ExtractKindleNotes\App.xaml
-11151548125
+D:\Personal Projects\ExtractKindleNotes\App\App.xaml
+1266905828
 
-61393564200
-13152784993
-MainWindow.xaml;
+7408968214
+36-682368191
+NotesViewer.xaml;
 
-True
+False
 
