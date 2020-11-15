@@ -10,20 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace ExtractKindleNotes
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for ErrorWindow.xaml
     /// </summary>
-    public partial class NoteViewer : Window
+    public partial class ErrorWindow : Window
     {
-        public NoteViewer(NoteViewerViewModel noteViewerViewModel)
+        public ErrorWindow(ErrorWindowViewModel errorWindowViewModel)
         {
             InitializeComponent();
-            DataContext = noteViewerViewModel;
+            DataContext = errorWindowViewModel;
         }
     }
 }

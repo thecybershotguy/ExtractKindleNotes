@@ -1,11 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace ExtractKindleNotes
 {
-    public class BaseClass
+    public class BaseClass : INotifyPropertyChanged
     {
         private readonly ILogger _logger;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Notifies the property changed to refresh the UI Element.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        public void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClass"/> class.

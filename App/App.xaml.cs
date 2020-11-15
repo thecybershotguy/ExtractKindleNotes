@@ -1,16 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows;
 
 namespace ExtractKindleNotes
 {
-
-    public class MyClass : BaseClass
-    {
-        public MyClass(): base(nameof(MyClass))
-        {
-            LogInformation("I was here");
-        }
-    }
 
     /// <summary>
     /// Interaction logic for App.xaml
@@ -22,19 +15,22 @@ namespace ExtractKindleNotes
             try
             {
                 base.OnStartup(e);
-                string currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "nlog.config"); ;
+                string currentDirectoryWithNlog = Path.Combine(Directory.GetCurrentDirectory(), "nlog.config"); ;
 
-                if (File.Exists(currentDirectory) is false)
-                    throw new System.Exception($"Path to configuration files do not exist does not exist{currentDirectory}");
-
-                LogFactory.Initalise(currentDirectory);
-
-                var test = new MyClass();
+                if (File.Exists(currentDirectoryWithNlog) is false)
+                    throw new Exception($"Path to configuration files do not exist does not exist{currentDirectoryWithNlog}");
+             
+                LogFactory.Initalise(currentDirectoryWithNlog);
             }
-            catch (System.Exception exc)
+            catch (Exception exc)
             {
-
+                var errorWindowViewModel = new ErrorWindowViewModel() { ErrorMessage = exc.StackTrace + Environment.NewLine + exc.Message };
+                var errorWindow = new ErrorWindow(errorWindowViewModel);
+                errorWindow.Show();
+                errorWindow.Focus();
             }
         }
+
+
     }
 }
