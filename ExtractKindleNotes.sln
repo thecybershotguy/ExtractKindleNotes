@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtractKindleNotes", "App\ExtractKindleNotes.csproj", "{4212483E-CE4F-467A-9C5D-75BF8CA529B5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GmailService", "GmailService\GmailService.csproj", "{42DA7444-5E59-4B36-8C19-546FBAA4D82B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectTools", "ProjectTools\ProjectTools.csproj", "{5C31B7D6-310F-4691-8517-33BDCDFB638C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{4212483E-CE4F-467A-9C5D-75BF8CA529B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4212483E-CE4F-467A-9C5D-75BF8CA529B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4212483E-CE4F-467A-9C5D-75BF8CA529B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42DA7444-5E59-4B36-8C19-546FBAA4D82B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42DA7444-5E59-4B36-8C19-546FBAA4D82B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42DA7444-5E59-4B36-8C19-546FBAA4D82B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42DA7444-5E59-4B36-8C19-546FBAA4D82B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C31B7D6-310F-4691-8517-33BDCDFB638C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C31B7D6-310F-4691-8517-33BDCDFB638C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C31B7D6-310F-4691-8517-33BDCDFB638C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C31B7D6-310F-4691-8517-33BDCDFB638C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

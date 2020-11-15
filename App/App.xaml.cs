@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NLog.Filters;
+using ProjectTools;
+using System;
 using System.IO;
 using System.Windows;
 
@@ -10,7 +12,7 @@ namespace ExtractKindleNotes
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             try
             {
@@ -20,7 +22,15 @@ namespace ExtractKindleNotes
                 if (File.Exists(currentDirectoryWithNlog) is false)
                     throw new Exception($"Path to configuration files do not exist does not exist{currentDirectoryWithNlog}");
              
-                LogFactory.Initalise(currentDirectoryWithNlog);
+                LogFactory.Initialize(currentDirectoryWithNlog);
+
+                var noteViewerViewModel = new NoteViewerViewModel();
+                await noteViewerViewModel.InitializeGmailServiceAsync();
+
+                var noteViewerWindow = new NoteViewer(noteViewerViewModel);
+                noteViewerWindow.Show();
+                noteViewerWindow.Focus();
+
             }
             catch (Exception exc)
             {

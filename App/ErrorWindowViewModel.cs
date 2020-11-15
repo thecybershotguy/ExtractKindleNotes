@@ -1,4 +1,6 @@
-﻿namespace ExtractKindleNotes
+﻿using ProjectTools;
+
+namespace ExtractKindleNotes
 {
     /// <summary>
     /// View model for Error Window
