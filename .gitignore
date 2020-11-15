@@ -1,9 +1,7 @@
 /App/bin
 /App/obj
-.vs/ExtractKindleNotes/v16/.suo
+.vs/*
 /ProjectTools/bin
 /ProjectTools/obj
 /GmailService/bin
 /GmailService/obj
-
-.vs/ExtractKindleNotes/v16/.suo
