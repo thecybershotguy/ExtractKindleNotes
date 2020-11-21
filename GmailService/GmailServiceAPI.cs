@@ -38,7 +38,7 @@ namespace GmailServiceProject
         public string TokenFileNamePath => Path.Combine(Directory.GetCurrentDirectory(), "Token");
 
         /// <summary>
-        /// Gets the Gmail service user resource used for mail manipulation.
+        /// Gets the G-mail service user resource used for mail manipulation.
         /// </summary>
         /// <returns></returns>
         public UsersResource GetGmailUserResource()
@@ -63,8 +63,6 @@ namespace GmailServiceProject
         }
         #endregion
 
-
-
         /// <summary>
         /// Creates the user credential asynchronous.
         /// </summary>
@@ -76,7 +74,7 @@ namespace GmailServiceProject
 
                  var loadedSecerts = GoogleClientSecrets.Load(_credentialFileStream).Secrets;
 
-                var scopes = new string[] { GmailService.Scope.GmailReadonly };
+                var scopes = new string[] { GmailService.Scope.GmailReadonly , GmailService.Scope.GmailModify};
 
                 _userCredential = await GoogleWebAuthorizationBroker.AuthorizeAsync(loadedSecerts, scopes, "user", CancellationToken.None, _GmailToken);
             }
@@ -111,7 +109,5 @@ namespace GmailServiceProject
                 throw;
             }
         }
-
-
     }
 }

@@ -20,8 +20,10 @@ namespace ExtractKindleNotes
         #region Fields And Properties
 
         public UsersResource _usersResource;
+        private const string CSV_FORMAT = "text/csv";
         private const string USER_ID = "me";
         private readonly System.Timers.Timer _emailCheckTimer;
+        private readonly Timer _payloadParser;
 
 
         /// <summary>
@@ -49,9 +51,20 @@ namespace ExtractKindleNotes
                 NotifyPropertyChanged();
             }
         }
+        #endregion
+
+        #region Constructor
+        public NoteViewerViewModel() : base(nameof(NoteViewerViewModel))
+        {
+            LogInformation($"---------------------------Starting application---------------------------");
+            _emailCheckTimer = new Timer(1000);
+            _payloadParser = new Timer(1000);
+            InitializeTimers();
+        }
+        #endregion
 
         /// <summary>
-        /// Gets the label ID asynchronous.
+        /// Gets the label identifier asynchronous.
         /// </summary>
         /// <param name="labelName">Name of the label.</param>
         /// <returns></returns>
@@ -75,18 +88,6 @@ namespace ExtractKindleNotes
                 throw;
             }
         }
-        #endregion
-
-        #region Constructor
-        public NoteViewerViewModel() : base(nameof(NoteViewerViewModel))
-        {
-            LogInformation($"---------------------------Starting application---------------------------");
-            _emailCheckTimer = new Timer(1000);
-            _emailCheckTimer.Elapsed += CheckForNewEmailTimer_Elapsed;
-            _emailCheckTimer.Enabled = true;
-            _emailCheckTimer.Start();
-        }
-        #endregion
 
         /// <summary>
         /// Initializes the G-mail service asynchronous.
@@ -104,6 +105,28 @@ namespace ExtractKindleNotes
             {
                 LogError(ex);
                 GoogleServiceInitialized = false;
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Initializes the timers.
+        /// </summary>
+        public void InitializeTimers()
+        {
+            try
+            {
+                _emailCheckTimer.Elapsed += CheckForNewEmailTimer_Elapsed;
+                _emailCheckTimer.Enabled = true;
+                _emailCheckTimer.Start();
+
+                _payloadParser.Elapsed += ParsePayLoadFromEmailsQueue_ElapsedAsync;
+                _payloadParser.Enabled = true;
+                _payloadParser.Start();
+            }
+            catch (Exception e)
+            {
+                LogError(e);
                 throw;
             }
         }
@@ -165,6 +188,77 @@ namespace ExtractKindleNotes
         }
 
         /// <summary>
+        /// Decodes the attachment data from Base64 to string.
+        /// </summary>
+        /// <param name="attachment">The attachment.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">attachment</exception>
+        /// <exception cref="InvalidDataException">There was no data for the Attachment Id: {attachment.AttachmentId}</exception>
+        private string DecodeAttachmentData(MessagePartBody attachment)
+        {
+            if (attachment is null)
+                throw new ArgumentNullException(nameof(attachment));
+
+            var dataExisits = attachment.Data == null ? false : true;
+
+            if (dataExisits is true)
+                return Tools.Base64ToString(attachment.Data);
+
+            throw new InvalidDataException($"There was no data for the Attachment Id: {attachment.AttachmentId}");
+        }
+
+        /// <summary>
+        /// Gets the attachment of a particular type from message body.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="attachmentType">Type of the attachment.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">No attachment founds for {attachmentType} type which sucks</exception>
+        private async Task<MessagePartBody> GetAttachment(Message message, string attachmentType)
+        {
+            var messageContent = message.Payload.Parts.Where(s => string.Equals(s.MimeType, attachmentType, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
+            if (messageContent is null)
+                throw new InvalidOperationException($"No attachment founds for {attachmentType} type which sucks");
+
+            var attachment = await _usersResource.Messages.Attachments.Get(USER_ID, message.Id, messageContent.Body.AttachmentId).ExecuteAsync();
+            return attachment;
+        }
+
+        /// <summary>
+        /// Decodes useful information from the Emails in the queue
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        private async void ParsePayLoadFromEmailsQueue_ElapsedAsync(object sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                _payloadParser.Stop();
+                _payloadParser.Enabled = false;
+
+                // Read all the Queued emails
+                while (LabelSpecificEmails.Count != 0)
+                {
+                    var message = LabelSpecificEmails.Dequeue();
+                    MessagePartBody attachment = await GetAttachment(message, CSV_FORMAT);
+                    string readableData = DecodeAttachmentData(attachment);
+
+                    Tools.SaveToFile(readableData,message.Id,true, Tools.TypeOfFile.Csv);
+                }
+            }
+            catch (Exception exc)
+            {
+                LogError(exc);
+            }
+            finally
+            {
+                _payloadParser.Enabled = true;
+                _payloadParser.Start();
+            }
+        }
+        /// <summary>
         /// Populates the email queue and delete email asynchronous.
         /// </summary>
         /// <param name="response">The response.</param>
@@ -180,9 +274,12 @@ namespace ExtractKindleNotes
                 foreach (Message mail in response.Messages)
                 {
                     counter++;
-                    LabelSpecificEmails.Enqueue(mail);
+
+                    var message = await _usersResource.Messages.Get(USER_ID, mail.Id).ExecuteAsync();
+                    LabelSpecificEmails.Enqueue(message);
                     LogInformation($"Adding emails to queue [ {counter} / {response.Messages.Count} ]");
                     await _usersResource.Messages.Trash(USER_ID, mail.Id).ExecuteAsync();
+                    LogInformation($"Deleting email [ {counter} / {response.Messages.Count} ]");
                 }
             }
             catch (Exception e)
@@ -210,7 +307,9 @@ namespace ExtractKindleNotes
 
                 var response = await messagesToRead.ExecuteAsync();
 
-                if (response.Messages.Any())
+                var newEmailExisits = response.Messages == null ? false : true;
+
+                if (newEmailExisits)
                     await PopulateEmailQueueAndDeleteEmailAsync(response);
                 else
                     LogDebug($"No new emails from kindle received in the label");
