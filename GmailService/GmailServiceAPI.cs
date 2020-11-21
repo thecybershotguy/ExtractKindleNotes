@@ -22,25 +22,6 @@ namespace GmailServiceProject
 
 
         /// <summary>
-        /// Gets the Gmail service user resource used for mail manipulation.
-        /// </summary>
-        /// <returns></returns>
-        public UsersResource GetGmailUserResource()
-        {
-            try
-            {
-                UsersResource user = new GmailService(new BaseClientService.Initializer()).Users;
-                LogInformation($"Successfully created Gmail Service");
-                return user;
-            }
-            catch (Exception ex)
-            {
-                LogError(ex, "Failed to create Gmail service");
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Gets the credential file name with path.
         /// </summary>
         /// <value>
@@ -55,36 +36,45 @@ namespace GmailServiceProject
         /// The token file name path.
         /// </value>
         public string TokenFileNamePath => Path.Combine(Directory.GetCurrentDirectory(), "Token");
+
+        /// <summary>
+        /// Gets the Gmail service user resource used for mail manipulation.
+        /// </summary>
+        /// <returns></returns>
+        public UsersResource GetGmailUserResource()
+        {
+            try
+            {
+                UsersResource user = new GmailService(new BaseClientService.Initializer() { HttpClientInitializer = _userCredential}).Users;
+                LogInformation($"Successfully created Gmail Service");
+                return user;
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Failed to create Gmail service");
+                throw;
+            }
+        }
         #endregion
 
         #region Constructor
         public GoogleAPI() : base(nameof(GoogleAPI))
         {
-            InitializeCredentials();
-
         }
         #endregion
 
+
+
         /// <summary>
-        /// Creates the user credential for Gmail service authentication.
+        /// Creates the user credential asynchronous.
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">
-        /// For class {nameof(GmailServiceAPI)} credentials were not initialized. Implement {nameof(InitializeCredentials)}, undefined object: {nameof(_credentialFileStream)}
-        /// or
-        /// For class {nameof(GmailServiceAPI)} credentials were not initialized. Implement {nameof(InitializeCredentials)},undefined object: {nameof(_GmailToken)}
-        /// </exception>
         public async Task CreateUserCredentialAsync()
         {
             try
             {
-                if (_credentialFileStream is null)
-                    throw new InvalidOperationException($"For class {nameof(GoogleAPI)} credentials were not initialized. Implement {nameof(InitializeCredentials)}, undefined object: {nameof(_credentialFileStream)}");
+                InitializeCredentials();
 
-                if (_GmailToken is null)
-                    throw new InvalidOperationException($"For class {nameof(GoogleAPI)} credentials were not initialized. Implement {nameof(InitializeCredentials)},undefined object: {nameof(_GmailToken)}");
-
-
-                var loadedSecerts = GoogleClientSecrets.Load(_credentialFileStream).Secrets;
+                 var loadedSecerts = GoogleClientSecrets.Load(_credentialFileStream).Secrets;
 
                 var scopes = new string[] { GmailService.Scope.GmailReadonly };
 
@@ -100,7 +90,7 @@ namespace GmailServiceProject
         /// <summary>
         /// Initializes the credentials.
         /// </summary>
-        public void InitializeCredentials()
+        internal void InitializeCredentials()
         {
             try
             {

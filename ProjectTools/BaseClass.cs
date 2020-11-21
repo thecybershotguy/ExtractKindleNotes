@@ -9,6 +9,19 @@ using System.Threading.Tasks;
 
 namespace ProjectTools
 {
+    public static class IEnumerableExtension
+    {
+        public static string Fuse<T>(this IEnumerable<T> items, string connector = "; ")
+        {
+            if (items == null)
+                return null;
+            if (items.Any() == false)
+                return null;
+            return string.Join(connector, items);
+        }
+    }
+
+
     public class BaseClass : INotifyPropertyChanged
     {
         private readonly ILogger _logger;
