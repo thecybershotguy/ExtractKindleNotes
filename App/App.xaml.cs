@@ -12,6 +12,12 @@ namespace ExtractKindleNotes
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // Log application is exiting
+            base.OnExit(e);
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             try
@@ -24,9 +30,9 @@ namespace ExtractKindleNotes
 
                 LogFactory.Initialize(currentDirectoryWithNlog);
 
-                var noteViewerViewModel = new NoteViewerViewModel();
+                var notesModel = new NotesModel();
 
-                var noteViewerWindow = new NoteViewer(noteViewerViewModel);
+                var noteViewerWindow = new NoteViewer();
                 noteViewerWindow.Show();
                 noteViewerWindow.Focus();
             }
@@ -38,13 +44,5 @@ namespace ExtractKindleNotes
                 errorWindow.Focus();
             }
         }
-
-        protected override void OnExit(ExitEventArgs e)
-        {
-            // Log application is exiting
-            base.OnExit(e);
-        }
-
-
     }
 }

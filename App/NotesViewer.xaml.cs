@@ -20,10 +20,9 @@ namespace ExtractKindleNotes
     /// </summary>
     public partial class NoteViewer : Window
     {
-        public NoteViewer(NoteViewerViewModel noteViewerViewModel)
+        public NoteViewer()
         {
             InitializeComponent();
-            DataContext = noteViewerViewModel;
         }
     }
 }

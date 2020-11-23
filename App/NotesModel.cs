@@ -15,7 +15,7 @@ namespace ExtractKindleNotes
     /// Note Viewer View model
     /// </summary>
     /// <seealso cref="ExtractKindleNotes.BaseClass" />
-    public class NoteViewerViewModel : BaseClass
+    public class NotesModel : BaseClass
     {
         #region Fields And Properties
 
@@ -54,9 +54,8 @@ namespace ExtractKindleNotes
         #endregion
 
         #region Constructor
-        public NoteViewerViewModel() : base(nameof(NoteViewerViewModel))
+        public NotesModel() : base(nameof(NotesModel))
         {
-            LogInformation($"---------------------------Starting application---------------------------");
             _emailCheckTimer = new Timer(1000);
             _payloadParser = new Timer(1000);
             InitializeTimers();
@@ -245,7 +244,12 @@ namespace ExtractKindleNotes
                     MessagePartBody attachment = await GetAttachment(message, CSV_FORMAT);
                     string readableData = DecodeAttachmentData(attachment);
 
-                    Tools.SaveToFile(readableData,message.Id,true, Tools.TypeOfFile.Csv);
+                    var book = new Book(readableData);
+                    // TODO : Invoke event to send book data
+                    
+
+                    // TODO : Make a new exception CSV FIle format change , when that happens handle it safely and save the CSV File to update the code
+                    //Tools.SaveToFile(readableData, message.Id, true, Tools.TypeOfFile.Csv);
                 }
             }
             catch (Exception exc)
@@ -263,7 +267,7 @@ namespace ExtractKindleNotes
         /// </summary>
         /// <param name="response">The response.</param>
         /// <exception cref="ArgumentNullException">Response from email {nameof(response)} is null</exception>
-        private async Task PopulateEmailQueueAndDeleteEmailAsync(ListMessagesResponse response)
+        private async Task PopulateEmailQueueAndDeleteEmailAsync(ListMessagesResponse response, bool deleteEmail = true)
         {
             try
             {
@@ -278,8 +282,12 @@ namespace ExtractKindleNotes
                     var message = await _usersResource.Messages.Get(USER_ID, mail.Id).ExecuteAsync();
                     LabelSpecificEmails.Enqueue(message);
                     LogInformation($"Adding emails to queue [ {counter} / {response.Messages.Count} ]");
-                    await _usersResource.Messages.Trash(USER_ID, mail.Id).ExecuteAsync();
-                    LogInformation($"Deleting email [ {counter} / {response.Messages.Count} ]");
+
+                    if (deleteEmail)
+                    {
+                        await _usersResource.Messages.Trash(USER_ID, mail.Id).ExecuteAsync();
+                        LogInformation($"Deleting email [ {counter} / {response.Messages.Count} ]");
+                    }
                 }
             }
             catch (Exception e)
@@ -310,7 +318,7 @@ namespace ExtractKindleNotes
                 var newEmailExisits = response.Messages == null ? false : true;
 
                 if (newEmailExisits)
-                    await PopulateEmailQueueAndDeleteEmailAsync(response);
+                    await PopulateEmailQueueAndDeleteEmailAsync(response, false);
                 else
                     LogDebug($"No new emails from kindle received in the label");
             }

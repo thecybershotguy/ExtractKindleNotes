@@ -145,6 +145,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Book.cs" />
     <Compile Include="ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
@@ -155,7 +156,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NoteViewerViewModel.cs" />
+    <Compile Include="NotesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
