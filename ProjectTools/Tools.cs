@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -6,6 +7,14 @@ namespace ProjectTools
 {
     public static class Tools
     {
+
+
+        public static string ToTitleCase(string senetence) 
+        {
+            var textInfo = new CultureInfo("en-US").TextInfo;
+            return textInfo.ToTitleCase(senetence);
+        }
+
         /// <summary>
         /// Appends the time stamp to string.
         /// </summary>
@@ -19,6 +28,9 @@ namespace ProjectTools
                 Path.GetExtension(fileName)
                 );
         }
+
+        public static char WhiteSpace => ' ';
+
 
         /// <summary>
         /// Type of file to save

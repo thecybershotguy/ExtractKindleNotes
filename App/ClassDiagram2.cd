@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ExtractKindleNotes.App">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtractKindleNotes.Book" BaseTypeListCollapsed="true">
+    <Position X="1" Y="2.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>IAAgAAAAAAAAAEAEgAAAAAIIgAAAAIAAQAAAAAAAIuA=</HashCode>
+      <FileName>Book.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ExtractKindleNotes.ErrorWindow" BaseTypeListCollapsed="true">
+    <Position X="17.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ErrorWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ExtractKindleNotes.ErrorWindowViewModel">
+    <Position X="10" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ErrorWindowViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtractKindleNotes.HighlightNoteAndLocation">
+    <Position X="16.5" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAIAAAAAAAAAAAAAAAAACAAAACA=</HashCode>
+      <FileName>HighlightNoteAndLocation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtractKindleNotes.Note" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAIAAAAAAAAAAIAAAAAACAAAAiA=</HashCode>
+      <FileName>Note.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ExtractKindleNotes.EmailWatcher">
+    <Position X="4" Y="2.25" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>gYAAAQAAQAAEAAIAACAAAAAIECAAAAAABAAAgAgCAAA=</HashCode>
+      <FileName>EmailWatcher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtractKindleNotes.NoteViewer" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NotesViewer.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ExtractKindleNotes.ParasingConstants">
+    <Position X="15.75" Y="7.75" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAACAAAAAAAA=</HashCode>
+      <FileName>ParasingConstants.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExtractKindleNotes.GoogleServiceHelper">
+    <Position X="8.25" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAACAAAAAAAAAAAAAAAEAAAAAAAAI=</HashCode>
+      <FileName>GoogleService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

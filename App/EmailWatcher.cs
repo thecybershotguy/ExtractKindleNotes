@@ -1,5 +1,4 @@
-﻿using GmailServiceProject;
-using Google.Apis.Gmail.v1;
+﻿using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using ProjectTools;
 using System;
@@ -8,59 +7,67 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Threading;
 
 namespace ExtractKindleNotes
 {
+
+    public static class AttachmentFormat
+    {
+
+        #region Public Fields
+
+        public static string CSV_FORMAT = "text/csv";
+
+        #endregion Public Fields
+
+
+    }
+
+
     /// <summary>
     /// Note Viewer View model
     /// </summary>
     /// <seealso cref="ExtractKindleNotes.BaseClass" />
-    public class NotesModel : BaseClass
+    public class EmailWatcher : BaseClass
     {
-        #region Fields And Properties
 
-        public UsersResource _usersResource;
-        private const string CSV_FORMAT = "text/csv";
+        #region Private Fields
+
         private const string USER_ID = "me";
-        private readonly System.Timers.Timer _emailCheckTimer;
-        private readonly Timer _payloadParser;
-
+        private readonly DispatcherTimer _emailCheckTimer;
+        private readonly DispatcherTimer _payloadParser;
 
         /// <summary>
         /// The Label specific emails
         /// </summary>
         private readonly Queue<Message> LabelSpecificEmails = new Queue<Message>();
 
-        private bool _googleServiceInitialized = false;
-        public GoogleAPI GoogleAPI { get; private set; }
+        #endregion Private Fields
 
+        #region Public Properties
 
+        public GoogleServiceHelper GoogleServiceHelper { get; }
+        public ViewModel ViewModel { get; }
 
-        /// <summary>
-        /// Gets a value indicating whether [Google service initialized].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [Google service initialized]; otherwise, <c>false</c>.
-        /// </value>
-        public bool GoogleServiceInitialized
+        #endregion Public Properties
+
+        #region Public Constructors
+
+        public EmailWatcher(GoogleServiceHelper googleServiceHelper , ViewModel viewModel) : base(nameof(EmailWatcher))
         {
-            get { return _googleServiceInitialized; }
-            private set
-            {
-                _googleServiceInitialized = value;
-                NotifyPropertyChanged();
-            }
-        }
-        #endregion
-
-        #region Constructor
-        public NotesModel() : base(nameof(NotesModel))
-        {
-            _emailCheckTimer = new Timer(1000);
-            _payloadParser = new Timer(1000);
+            GoogleServiceHelper = googleServiceHelper ?? throw new ArgumentNullException(nameof(googleServiceHelper));
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            _emailCheckTimer = new DispatcherTimer();
+            _payloadParser = new DispatcherTimer();
+            _emailCheckTimer.Interval = TimeSpan.FromSeconds(1);
+            _payloadParser.Interval = TimeSpan.FromSeconds(1);
             InitializeTimers();
         }
-        #endregion
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         /// <summary>
         /// Gets the label identifier asynchronous.
@@ -72,7 +79,7 @@ namespace ExtractKindleNotes
         {
             try
             {
-                var response = await _usersResource.Labels.List(USER_ID).ExecuteAsync();
+                var response = await GoogleServiceHelper.UsersResource.Labels.List(USER_ID).ExecuteAsync();
                 var label = response.Labels.Where(s => string.Equals(s.Name, labelName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
                 if (label is null)
@@ -89,39 +96,17 @@ namespace ExtractKindleNotes
         }
 
         /// <summary>
-        /// Initializes the G-mail service asynchronous.
-        /// </summary>
-        public async Task InitializeGmailServiceAsync()
-        {
-            try
-            {
-                GoogleAPI = new GoogleAPI();
-                await GoogleAPI.CreateUserCredentialAsync();
-                _usersResource = GoogleAPI.GetGmailUserResource();
-                GoogleServiceInitialized = true;
-            }
-            catch (Exception ex)
-            {
-                LogError(ex);
-                GoogleServiceInitialized = false;
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Initializes the timers.
         /// </summary>
         public void InitializeTimers()
         {
             try
             {
-                _emailCheckTimer.Elapsed += CheckForNewEmailTimer_Elapsed;
-                _emailCheckTimer.Enabled = true;
+                _emailCheckTimer.Tick += CheckForNewEmailTimer_Elapsed;
                 _emailCheckTimer.Start();
 
-                _payloadParser.Elapsed += ParsePayLoadFromEmailsQueue_ElapsedAsync;
-                _payloadParser.Enabled = true;
-                _payloadParser.Start();
+                _payloadParser.Tick += ParsePayLoadFromEmailsQueue_ElapsedAsync;
+                 _payloadParser.Start();
             }
             catch (Exception e)
             {
@@ -129,6 +114,10 @@ namespace ExtractKindleNotes
                 throw;
             }
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
 
         /// <summary>
         /// Checks for new emails.
@@ -158,18 +147,13 @@ namespace ExtractKindleNotes
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
-        private async void CheckForNewEmailTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private async void CheckForNewEmailTimer_Elapsed(object sender, EventArgs e )
         {
             try
             {
                 _emailCheckTimer.Stop();
-                _emailCheckTimer.Enabled = false;
 
-
-                if (GoogleServiceInitialized is false)
-                    await InitializeGmailServiceAsync();
-                else
-                    await CheckForNewEmails("Kindle");
+                 await CheckForNewEmails("Kindle");
             }
             catch (Exception exc)
             {
@@ -177,11 +161,10 @@ namespace ExtractKindleNotes
 
                 // If something goes wrong try Initializing G-mail service again in the next timer tick
                 // If This happens show UI Indication
-                GoogleServiceInitialized = false;
+                await GoogleServiceHelper.InitializeGmailServiceAsync();
             }
             finally
             {
-                _emailCheckTimer.Enabled = true;
                 _emailCheckTimer.Start();
             }
         }
@@ -198,7 +181,7 @@ namespace ExtractKindleNotes
             if (attachment is null)
                 throw new ArgumentNullException(nameof(attachment));
 
-            var dataExisits = attachment.Data == null ? false : true;
+            var dataExisits = attachment.Data != null;
 
             if (dataExisits is true)
                 return Tools.Base64ToString(attachment.Data);
@@ -215,41 +198,55 @@ namespace ExtractKindleNotes
         /// <exception cref="InvalidOperationException">No attachment founds for {attachmentType} type which sucks</exception>
         private async Task<MessagePartBody> GetAttachment(Message message, string attachmentType)
         {
-            var messageContent = message.Payload.Parts.Where(s => string.Equals(s.MimeType, attachmentType, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            try
+            {
+                var messageContent = message.Payload.Parts.Where(s => string.Equals(s.MimeType, attachmentType, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
-            if (messageContent is null)
-                throw new InvalidOperationException($"No attachment founds for {attachmentType} type which sucks");
+                if (messageContent is null)
+                    throw new InvalidOperationException($"No attachment founds for {attachmentType} type which sucks");
 
-            var attachment = await _usersResource.Messages.Attachments.Get(USER_ID, message.Id, messageContent.Body.AttachmentId).ExecuteAsync();
-            return attachment;
+                var attachment = await GoogleServiceHelper.UsersResource.Messages.Attachments.Get(USER_ID, message.Id, messageContent.Body.AttachmentId).ExecuteAsync();
+                return attachment;
+            }
+            catch (Exception exc)
+            {
+                LogError(exc);
+                throw;
+            }
         }
-
         /// <summary>
         /// Decodes useful information from the Emails in the queue
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
         /// <exception cref="NotImplementedException"></exception>
-        private async void ParsePayLoadFromEmailsQueue_ElapsedAsync(object sender, ElapsedEventArgs e)
+        private async void ParsePayLoadFromEmailsQueue_ElapsedAsync(object sender, EventArgs e)
         {
             try
             {
                 _payloadParser.Stop();
-                _payloadParser.Enabled = false;
 
                 // Read all the Queued emails
                 while (LabelSpecificEmails.Count != 0)
                 {
                     var message = LabelSpecificEmails.Dequeue();
-                    MessagePartBody attachment = await GetAttachment(message, CSV_FORMAT);
+                    MessagePartBody attachment = await GetAttachment(message, AttachmentFormat.CSV_FORMAT);
                     string readableData = DecodeAttachmentData(attachment);
 
                     var book = new Book(readableData);
-                    // TODO : Invoke event to send book data
-                    
 
-                    // TODO : Make a new exception CSV FIle format change , when that happens handle it safely and save the CSV File to update the code
-                    //Tools.SaveToFile(readableData, message.Id, true, Tools.TypeOfFile.Csv);
+                    Book bookRead = ViewModel.BooksRead.Where(s => s == book).FirstOrDefault();
+
+                    if (bookRead == null)
+                    {
+                        book.UpdateNotes(readableData, false);
+                        ViewModel.BooksRead.Add(book);
+                        ViewModel.CreateAndUpdateJsonDataBase();
+                    }
+                    else 
+                    {
+                        bookRead.UpdateNotes(readableData, true);
+                    }
                 }
             }
             catch (Exception exc)
@@ -258,7 +255,6 @@ namespace ExtractKindleNotes
             }
             finally
             {
-                _payloadParser.Enabled = true;
                 _payloadParser.Start();
             }
         }
@@ -279,13 +275,13 @@ namespace ExtractKindleNotes
                 {
                     counter++;
 
-                    var message = await _usersResource.Messages.Get(USER_ID, mail.Id).ExecuteAsync();
+                    var message = await GoogleServiceHelper.UsersResource.Messages.Get(USER_ID, mail.Id).ExecuteAsync();
                     LabelSpecificEmails.Enqueue(message);
                     LogInformation($"Adding emails to queue [ {counter} / {response.Messages.Count} ]");
 
                     if (deleteEmail)
                     {
-                        await _usersResource.Messages.Trash(USER_ID, mail.Id).ExecuteAsync();
+                        await GoogleServiceHelper.UsersResource.Messages.Trash(USER_ID, mail.Id).ExecuteAsync();
                         LogInformation($"Deleting email [ {counter} / {response.Messages.Count} ]");
                     }
                 }
@@ -309,13 +305,13 @@ namespace ExtractKindleNotes
                 if (string.IsNullOrEmpty(labelId))
                     throw new ArgumentException($"Label Id is null or empty", nameof(labelId));
 
-                UsersResource.MessagesResource.ListRequest messagesToRead = _usersResource.Messages.List(USER_ID);
+                UsersResource.MessagesResource.ListRequest messagesToRead = GoogleServiceHelper.UsersResource.Messages.List(USER_ID);
                 messagesToRead.LabelIds = labelId;
                 messagesToRead.IncludeSpamTrash = false;
 
                 var response = await messagesToRead.ExecuteAsync();
 
-                var newEmailExisits = response.Messages == null ? false : true;
+                var newEmailExisits = response.Messages != null;
 
                 if (newEmailExisits)
                     await PopulateEmailQueueAndDeleteEmailAsync(response, false);
@@ -328,5 +324,7 @@ namespace ExtractKindleNotes
                 throw;
             }
         }
+
+        #endregion Private Methods
     }
 }

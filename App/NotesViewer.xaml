@@ -5,8 +5,44 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ExtractKindleNotes"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TabControl Grid.Row="1" SelectedItem="{Binding FirstOrDefault,Mode=OneWay}" ItemsSource="{Binding BooksRead}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock FontSize="15" Text="{Binding Title}"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <ListBox Background="LightGray" HorizontalAlignment="Left"  ItemsSource="{Binding Notes}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="Black" BorderThickness="0.1" >
+                                    <TextBlock FontSize="14" FontFamily="Comic Sans MS" TextWrapping="WrapWithOverflow"  Text="{Binding Text }" >
+                                    </TextBlock>
+                                        
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <Grid Background="Yellow" Grid.Row="1" >
+                            <TextBlock HorizontalAlignment="Right"  Background="Yellow" VerticalAlignment="Center" FontSize="15" Text="{Binding Author}"/>
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </Grid>
 </Window>

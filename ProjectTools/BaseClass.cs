@@ -16,6 +16,11 @@ namespace ProjectTools
         /// <exception cref="InvalidOperationException">Log factory not initialized: {nameof(LogFactory)}</exception>
         public BaseClass(string className = null)
         {
+            if (string.IsNullOrEmpty(className))
+            {
+                return;
+            }
+
             if (LogFactory.Logger is null)
                 throw new InvalidOperationException($"Log factory not initialized: {nameof(LogFactory)}");
 

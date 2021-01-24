@@ -133,6 +133,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModel.cs" />
     <Page Include="ErrorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -150,13 +151,17 @@
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ErrorWindowViewModel.cs" />
+    <Compile Include="GoogleService.cs" />
+    <Compile Include="HighlightNoteAndLocation.cs" />
+    <Compile Include="Note.cs" />
     <Compile Include="NotesViewer.xaml.cs">
       <DependentUpon>NotesViewer.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NotesModel.cs" />
+    <Compile Include="EmailWatcher.cs" />
+    <Compile Include="ParasingConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -174,6 +179,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
     <None Include="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

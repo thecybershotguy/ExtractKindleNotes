@@ -24,15 +24,21 @@ namespace ExtractKindleNotes
             {
                 base.OnStartup(e);
                 string currentDirectoryWithNlog = Path.Combine(Directory.GetCurrentDirectory(), "nlog.config"); ;
+                var pathWithFileName = Path.Combine(Directory.GetCurrentDirectory(), "BooksRead.json"); 
 
                 if (File.Exists(currentDirectoryWithNlog) is false)
                     throw new Exception($"Path to configuration files do not exist does not exist{currentDirectoryWithNlog}");
 
                 LogFactory.Initialize(currentDirectoryWithNlog);
 
-                var notesModel = new NotesModel();
 
-                var noteViewerWindow = new NoteViewer();
+                var viewModel = new ViewModel(pathWithFileName);
+                var googleService = new GoogleServiceHelper();
+                googleService.InitializeGmailServiceAsync();
+                EmailWatcher emailWatcher = new EmailWatcher(googleService, viewModel);
+
+
+                var noteViewerWindow = new NoteViewer(viewModel);
                 noteViewerWindow.Show();
                 noteViewerWindow.Focus();
             }
